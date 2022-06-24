@@ -45,21 +45,31 @@ scrape_data <- function(endpoint, links) {
     
     page <- xml2::read_html(glue::glue(endpoint, x)) %>%
       rvest::html_nodes("#content")
-    
-    # browser()
 
-    data.frame(title = scrape_element(page, selector = "#tblHealthy > thead > tr > th.top.dbfield"),
+    artifact_link <- scrape_element(page, i = 5)
+    
+    id <- regmatches(x, gregexpr("[[:digit:]]+", x))[[1]]
+
+    df <- data.frame(id = id,
+               title = scrape_element(page, selector = "#tblHealthy > thead > tr > th.top.dbfield"),
                audience = scrape_element(page, i = 1),
                opts = scrape_element(page, i = 2),
                updated = scrape_element(page, i = 3),
                format = scrape_element(page, i = 4),
-               artifact_link = scrape_element(page, i = 5),
+               artifact_link = artifact_link,
                designer = scrape_element(page, i = 6),
                developer = scrape_element(page, i = 7),
                condition = scrape_element(page, i = 8),
                deliberation_point = scrape_element(page, i = 9),
                language = scrape_element(page, i = 10)
     )
+
+    if(tools::file_ext(artifact_link) == "pdf") {
+      download.file(artifact_link, glue::glue("./artifacts/{id}.pdf", id=id), mode="wb")
+    }
+    
+    return(df)
+
   }) %>% 
     dplyr::bind_rows()
 }
