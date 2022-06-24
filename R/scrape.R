@@ -71,5 +71,31 @@ scrape_data <- function(endpoint, links) {
     return(df)
 
   }) %>% 
-    dplyr::bind_rows()
+    dplyr::bind_rows() %>%
+    dplyr::mutate(library = "OHRI")
+}
+
+parse_languages <- function(df) {
+  
+  language_opts <- strsplit(df$language, ",")
+  languages <- stringr::str_trim(unlist(language_opts), "both")
+  languages <- languages[lengths(gregexpr("\\W+", languages)) + 1 <=2]
+  languages <- unique(gsub("[[:punct:]]", "", languages))
+  
+  nCol <- ncol(df)
+  
+  for(i in 1:length(langauges)) {
+    df$l <- NA
+    names(df)[nCol+i] <- languages[i]
+  }
+  
+  for(i in 1:nrow(df)) {
+    for(j in languages) {
+      df[i, j] <- grepl(j, df$language[i])
+    }
+  }
+  
+  df$language <- NULL
+
+  return(df)
 }
