@@ -19,16 +19,16 @@ scrape_element <- function(page, i = NULL, selector = "#tblHealthy > tbody > tr:
   if (!is.null(i)) {
     selector <- glue::glue(selector, i = i)
   }
-
+  
   x <- page %>%
     rvest::html_nodes(selector) %>%
-    rvest::html_text()
+    rvest::html_elements("a") %>%
+    rvest::html_attr("href")
 
   if (length(x) == 0) {
     x <- page %>%
       rvest::html_nodes(selector) %>%
-      rvest::html_elements("a") %>%
-      rvest::html_attr("href")
+      rvest::html_text()
   }
 
   return(x)
