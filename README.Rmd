@@ -1,0 +1,70 @@
+---
+title: "Summary data"
+output: md_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+```
+
+```{r}
+library(googlesheets4)
+library(magrittr)
+library(dplyr)
+```
+
+```{r}
+df <- read_sheet("18uicdDpHg2YNIQ6eAyGsKrvrwu1G4Rr6eiSVUlGX-CY", skip = 1, na=c("", "NA")) %>%
+  mutate(Condition = tolower(Condition))
+
+df_filtered <- df %>%
+  filter(Link_active) %>%
+  filter(English)
+```
+
+# Data summary
+
+Data were collected from two decision aid repositories: the [Ottawa Hospital Research Institute (OHRI) Patient Decision Aid](https://decisionaid.ohri.ca/) library and the [Mayo Clinic's Knowledge and Evaluation Research Unit (Mayo)](https://www.mayo.edu/research/labs/knowledge-evaluation-research-unit/overview). Jointly, the libraries contain `r nrow(df)` decision aids. Researchers filtered out decision aids that have inactive links. Additionally, decision aids were excluded if they are not available in English, resulting in a sample of size of `r nrow(df_filtered)`. 
+
+```{r}
+designers <- df_filtered %>% 
+  group_by(Designer) %>% 
+  tally() %>% 
+  arrange(desc(n))
+```
+
+The resulting sample of decision aids were creating overwhelmingly by one developer, Healthwise. Healthwise represents `r round(designers %>% slice(1) %>% pull(n)*100/nrow(df_filtered), 1)`% of the data subset. The developer that represents the second largest proportion of the sample is Mayo Clinic (`r round(designers %>% slice(2) %>% pull(n)*100/nrow(df_filtered), 1)`%). 
+
+The decision aids represent a large variety of conditions (n = `r df_filtered %>% distinct(Condition) %>% nrow()`), varying from across permanent/temporary/situation, ...
+life-threatening illnesses such as cancer, temporary health situations such as pregnancy and behavioral health choices such as contraception.
+
+```{r, eval = FALSE}
+
+set.seed(1234)
+
+df_filtered %>% group_by(Condition) %>% sample_n(1) %>%
+  group_by(Designer) %>% 
+  tally() %>% 
+  arrange(desc(n))
+
+nh <- df_filtered %>% 
+  filter(Designer != "Healthwise") %>% 
+  group_by(Condition) %>% 
+  sample_n(1)
+
+h <- df_filtered %>% 
+  filter(Designer == "Healthwise") %>% 
+  filter(!(Condition %in% nh$Condition)) %>%
+  group_by(Condition) %>% 
+  sample_n(1)
+
+sample <- nh %>%
+  bind_rows(h) %>%
+  arrange(Condition)
+
+df <- df %>% 
+  mutate(sample = id %in% sample$id)
+
+```
+
+
