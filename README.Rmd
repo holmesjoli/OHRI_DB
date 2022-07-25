@@ -15,11 +15,16 @@ library(dplyr)
 
 ```{r}
 df <- read_sheet("18uicdDpHg2YNIQ6eAyGsKrvrwu1G4Rr6eiSVUlGX-CY", skip = 1, na=c("", "NA")) %>%
-  mutate(Condition = tolower(Condition))
+  mutate(Condition = tolower(Condition)) %>% 
+  rename(Disease = `Disease/Disorder/Syndrome`)
 
 df_filtered <- df %>%
   filter(Link_active) %>%
   filter(English)
+
+condition <- df_filtered %>%
+  distinct(Condition, Chronic_Condition_CMS, Disease)
+
 ```
 
 # Data summary
@@ -33,10 +38,12 @@ designers <- df_filtered %>%
   arrange(desc(n))
 ```
 
-The resulting sample of decision aids were creating overwhelmingly by one developer, Healthwise. Healthwise represents `r round(designers %>% slice(1) %>% pull(n)*100/nrow(df_filtered), 1)`% of the data subset. The developer that represents the second largest proportion of the sample is Mayo Clinic (`r round(designers %>% slice(2) %>% pull(n)*100/nrow(df_filtered), 1)`%). 
+The resulting sample of decision aids were creating overwhelmingly by one developer, Healthwise. Healthwise represents `r round(designers %>% slice(1) %>% pull(n)*100/nrow(df_filtered), 1)`% of the data subset. The developer that represents the second largest proportion of the sample is Mayo Clinic (`r round(designers %>% slice(2) %>% pull(n)*100/nrow(df_filtered), 1)`%).
 
-The decision aids represent a large variety of conditions (n = `r df_filtered %>% distinct(Condition) %>% nrow()`), varying from across permanent/temporary/situation, ...
-life-threatening illnesses such as cancer, temporary health situations such as pregnancy and behavioral health choices such as contraception.
+## Health Conditions
+
+The decision aids database includes a diverse set of health conditions (n = `r condition %>% nrow()`), that vary from life-threatening illnesses such as cancer, temporary health situations such as pregnancy and behavioral health choices such as contraception. The term *health condition* is used to communicate a state of health that deviates for a health norm. Health conditions vary widely, encompassing states of health such as pregnancy as well as diseases such as depression and heart disease. Diseases, disorders, and syndromes are a subset of conditions (n = `r condition %>% filter(Disease) %>% nrow()`). Of the `r condition %>% nrow()` conditions represented in the data, `r condition %>% filter(Chronic_Condition_CMS) %>% nrow()` can be categorized as chronic conditions under the [Centers for Medicaid and Medicare's classification system](https://www.cms.gov/Research-Statistics-Data-and-Systems/Statistics-Trends-and-Reports/Chronic-Conditions/CC_Main).
+
 
 ```{r, eval = FALSE}
 
