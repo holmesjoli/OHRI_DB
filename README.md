@@ -24,7 +24,10 @@ choices such as contraception. The term *health condition* is used to
 communicate a state of health that deviates for a health norm. Health
 conditions vary widely, encompassing states of health such as pregnancy
 as well as diseases such as depression and heart disease. Diseases,
-disorders, and syndromes are a subset of conditions (n = 112). Of the
-130 conditions represented in the data, 33 can be categorized as chronic
-conditions under the [Centers for Medicaid and Medicare’s classification
+disorders, and syndromes are a subset of health conditions (n = 108). Of
+the 130 conditions represented in the data, 26 can be categorized as
+chronic conditions under the [Centers for Medicaid and Medicare’s
+classification
 system](https://www.cms.gov/Research-Statistics-Data-and-Systems/Statistics-Trends-and-Reports/Chronic-Conditions/CC_Main).
+
+### Types of Decisions
